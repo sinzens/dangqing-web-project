@@ -10,21 +10,11 @@ yarn install
 - `./dist_electron` will be generated after setup, if there is no **config.json** in it, please copy the existing file from `./others`
 
 ### Compiles and hot-reloads for development
-Web
-```
-yarn serve
-```
-Electron
 ```
 yarn electron:serve
 ```
 
 ### Compiles and minifies for production
-Web
-```
-yarn build
-```
-Electron
 ```
 yarn electron:build
 ```
