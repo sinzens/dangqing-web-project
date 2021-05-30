@@ -1,0 +1,9 @@
+{
+  "database": {
+    "host": "rm-uf64u9qj410or7qhgto.mysql.rds.aliyuncs.com",
+    "user": "user",
+    "password": "Qwer123!",
+    "database": "database_test",
+    "connectTimeout": 3000
+  }
+}
