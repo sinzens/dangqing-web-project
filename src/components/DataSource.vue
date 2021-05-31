@@ -127,6 +127,7 @@ export default Vue.extend({
             sortBy: 'batchno',
             tableName: this.table,
             sourceName: 'batch',
+            invalidInfo: this.$texts.text.dropOffNoSecurityNoInvalid,
 
             converter: (item_: BatchItem) => {
               const item = Object.assign({}, item_)
@@ -140,22 +141,19 @@ export default Vue.extend({
               item.dropoff_no = this.dropOffTextToNumber(item.dropoff_no)
               item.security_no = this.securityTextToNumber(item.security_no)
               return item
-            }
+            },
 
-            // validate: (item: BatchItem) => {
-            //   const tablesData = JSON.parse(
-            //     this.$store.getters.dataTableData
-            //   ) as Record<Table, DataTableItems>
-            //   const atdTableData = tablesData.atdTable as AtdPathItem[]
-            //   const isInAtdTable = atdTableData.find(atdItem => {
-            //     return (
-            //       atdItem.area === item.dropoff_no &&
-            //       atdItem.destination === item.security_no
-            //     )
-            //   })
-            //   console.log(isInAtdTable)
-            //   return true
-            // }
+            validate: (item: BatchItem) => {
+              const { results } = window.ipcRenderer.sendSync('querySync', {
+                type: 'getTableData',
+                sql: `select * from path_1 where area = ${item.dropoff_no} and destination = ${item.security_no}`
+              })
+              if (results) {
+                return (results as unknown[]).length !== 0
+              } else {
+                return false
+              }
+            }
           } as DataTableModel
         ],
 

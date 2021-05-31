@@ -52,6 +52,7 @@
           <v-card tile>
             <v-card-title v-text="$texts.title.backupPreview" />
             <v-card-text>
+              <span v-text="recordIdentifier" />
               <v-data-table
                 :no-data-text="$texts.text.noData"
                 :no-results-text="$texts.text.noResult"
@@ -186,6 +187,15 @@ export default Vue.extend({
         return converter ? data.map(converter) : [...data]
       } else {
         return []
+      }
+    },
+
+    recordIdentifier (): string {
+      const record = this.records[this.backupIndex]
+      if (record) {
+        return record.identifier
+      } else {
+        return String()
       }
     },
 

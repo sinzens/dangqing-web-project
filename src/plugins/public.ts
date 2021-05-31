@@ -44,6 +44,13 @@ export default {
     return map
   },
 
+  isObjectEqualType (
+    a: Record<string, unknown>,
+    b: Record<string, unknown>
+  ) {
+    return Object.getPrototypeOf(a) === Object.getPrototypeOf(b)
+  },
+
   isNonnegativeFloat (value: number | string) {
     return String(value).match(RegExp(/^(?:[1-9]\d*|0)?(?:\.\d+)?$/)) !== null
   },

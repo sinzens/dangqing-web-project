@@ -84,6 +84,14 @@
                     />
                   </v-col>
                 </v-row>
+                <v-row>
+                  <v-alert
+                    type="error"
+                    v-text="invalidInfo"
+                    v-show="invalidInfo.length !== 0"
+                    tile
+                  />
+                </v-row>
               </v-container>
             </v-card-text>
             <v-card-actions>
@@ -96,6 +104,7 @@
               />
               <v-btn
                 color="primary"
+                :loading="confirmingEdit"
                 v-text="$texts.text.save"
                 @click="saveEdit"
                 text
@@ -167,6 +176,9 @@ export default Vue.extend({
       showDeleteDialog: false,
       dataFetched: false,
       loading: true,
+      confirmingEdit: false,
+
+      invalidInfo: String(),
 
       searchedHeader: String(),
       searchedValue: String(),
@@ -200,10 +212,15 @@ export default Vue.extend({
       if (type === 'getTableData') {
         this.dataFetched = false
         this.loading = false
-        this.innerItems = [...results] as unknown as DataTableItems
-        this.$nextTick(() => {
-          this.dataFetched = true
-        })
+        if (this.checkItemModel(
+          this.dataTableModel.itemModel,
+          results[0] as unknown as DataTableItem
+        )) {
+          this.innerItems = [...results] as unknown as DataTableItems
+          this.$nextTick(() => {
+            this.dataFetched = true
+          })
+        }
       }
     },
 
@@ -278,22 +295,28 @@ export default Vue.extend({
 
     saveEdit () {
       const converter = this.dataTableModel.invertConverter
+      const editedItem = Object.assign({}, this.editedItem)
       if (converter) {
-        Object.assign(this.editedItem, converter(this.editedItem))
+        Object.assign(editedItem, converter(this.editedItem))
       }
 
+      this.confirmingEdit = true
       const validate = this.dataTableModel.validate
-      if ((validate && validate(this.editedItem)) || !validate) {
+      if ((validate && validate(editedItem)) || !validate) {
         if (this.editedIndex > -1) {
-          this.$set(this.innerItems, this.editedIndex, this.editedItem)
-          this.updateItemToDatabase(this.editedItem)
+          const beforeEdited = Object.assign({}, this.innerItems[this.editedIndex])
+          this.$set(this.innerItems, this.editedIndex, editedItem)
+          this.updateItemToDatabase(editedItem, beforeEdited)
         } else {
-          this.innerItems.push(this.editedItem)
-          this.insertItemToDatabase(this.editedItem)
+          this.innerItems.push(editedItem)
+          this.insertItemToDatabase(editedItem)
         }
+        this.invalidInfo = String()
+        this.closeEditDialog()
+      } else {
+        this.invalidInfo = this.dataTableModel.invalidInfo || String()
       }
-
-      this.closeEditDialog()
+      this.confirmingEdit = false
     },
 
     insertItemToDatabase (item: DataTableItem) {
@@ -303,10 +326,14 @@ export default Vue.extend({
       window.ipcRenderer.send('query', { type: 'insertData', sql: sql })
     },
 
-    updateItemToDatabase (item_: DataTableItem) {
-      const item = item_ as unknown as Record<string, unknown>
-      const values = Object.keys(item).map(key => `${key} = '${item[key]}'`)
-      const conditions = this.dataTableModel.keys.map(key => `${key} = '${item[key]}'`)
+    updateItemToDatabase (
+      newItem_: DataTableItem,
+      oldItem_: DataTableItem
+    ) {
+      const newItem = newItem_ as unknown as Record<string, unknown>
+      const oldItem = oldItem_ as unknown as Record<string, unknown>
+      const values = Object.keys(newItem).map(key => `${key} = '${newItem[key]}'`)
+      const conditions = this.dataTableModel.keys.map(key => `${key} = '${oldItem[key]}'`)
       const valuesStr = values.join(', ')
       const conditionsStr = conditions.join(' and ')
       const sql = `update ${this.dataTableModel.sourceName} set ${valuesStr} where ${conditionsStr}`
@@ -319,6 +346,13 @@ export default Vue.extend({
       const conditionsStr = conditions.join(' and ')
       const sql = `delete from ${this.dataTableModel.sourceName} where ${conditionsStr}`
       window.ipcRenderer.send('query', { type: 'deleteData', sql: sql })
+    },
+
+    checkItemModel (a: DataTableItem, b: DataTableItem) {
+      return Public.isObjectEqualType(
+        a as unknown as Record<string, unknown>,
+        b as unknown as Record<string, unknown>
+      )
     },
 
     attachEvents () {

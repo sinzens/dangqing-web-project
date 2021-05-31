@@ -39,6 +39,16 @@ export default class Server {
     }
   }
 
+  public queryAndWait(sql: string) {
+    return new Promise(resolve => {
+      if (this.isConnected()) {
+        this.connection.query(sql, (error, results, field) => {
+          resolve({ error, results, field })
+        })
+      }
+    })
+  }
+
   public isConnected () {
     return (
       this.connection.state === 'connected' ||

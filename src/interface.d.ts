@@ -56,7 +56,8 @@ export interface DataTableModel {
   itemModel: DataTableItem
   sortBy: string,
   tableName: Table,
-  sourceName: TableSource
+  sourceName: TableSource,
+  invalidInfo?: string
   converter?: (item: DataTableItem) => DataTableItem
   invertConverter?: (item: DataTableItem) => DataTableItem
   validate?: (item: DataTableItem) => boolean | Promise<boolean>

@@ -6,13 +6,14 @@ import excel, { BookType } from 'xlsx'
 import { app, protocol, BrowserWindow, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
-import { ConnectionConfig } from 'mysql'
+import { ConnectionConfig, MysqlError } from 'mysql'
 import Server from './server/server'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
-const configPath = path.join(__dirname, 'config.json')
-const backupPath = path.join(__dirname, 'backup.json')
-const outputDir = path.join(__dirname, 'output')
+const configPath = path.join(isDevelopment ? __dirname : process.cwd(), 'config.json')
+const backupPath = path.join(isDevelopment ? __dirname : process.cwd(), 'backup.json')
+const aboutPath = path.join(isDevelopment ? __dirname : process.cwd(), 'about.html')
+const outputDir = path.join(isDevelopment ? __dirname : process.cwd(), 'output')
 
 let config: Record<string, unknown> | null = null
 let server: Server | null = null
@@ -29,6 +30,7 @@ async function createWindow () {
     minHeight: 600,
     frame: false,
     webPreferences: {
+      webviewTag: true,
       nodeIntegration: (
         process.env.ELECTRON_NODE_INTEGRATION as unknown
       ) as boolean,
@@ -82,7 +84,7 @@ function initIpcConnections (win: BrowserWindow) {
       const edited = JSON.parse(configStr)
       Object.assign(config, edited)
       fs.writeFileSync(configPath, JSON.stringify(edited, null, 2))
-      event.sender.send('info', `配置文件写入至: ${configPath}`)
+      event.sender.send('info', `配置文件写入至: ${configPath}, 请重启软件以使设置生效`)
     } catch (error) {
       event.sender.send('error', error)
     }
@@ -127,6 +129,25 @@ function initIpcConnections (win: BrowserWindow) {
     })
   })
 
+  ipcMain.on('querySync', (event, { type, sql }) => {
+    if (!server) { return }
+    server.queryAndWait(sql).then((value) => {
+      const { error, results, field } = value as {
+        error: MysqlError | null,
+        results: unknown,
+        field: unknown
+      }
+      if (error) {
+        event.sender.send('error', error.message)
+      } else {
+        if (results) {
+          const result = { type, results, field }
+          event.returnValue = result
+        }
+      }
+    })
+  })
+
   ipcMain.on('toggleDevTools', () => {
     win.webContents.toggleDevTools()
   })
@@ -155,6 +176,10 @@ function initIpcConnections (win: BrowserWindow) {
       event.sender.send('error', error)
     }
   })
+
+  ipcMain.on('loadAbout', (event) => {
+    event.sender.send('aboutLoaded', aboutPath)
+  })
 }
 
 function initWindowEvents (win: BrowserWindow) {
@@ -172,7 +197,16 @@ function initConfig (win: BrowserWindow) {
     config = JSON.parse(configStr)
     win.webContents.send('configLoaded', configStr)
   } catch (error) {
-    win.webContents.send('error', '配置文件不存在或错误')
+    config = {
+      database: {
+        host: 'rm-uf64u9qj410or7qhgto.mysql.rds.aliyuncs.com',
+        user: 'user',
+        password: 'Qwer123!',
+        database: 'database_test',
+        connectTimeout: 5000
+      }
+    }
+    win.webContents.send('configLoaded', JSON.stringify(config))
   }
 }
 
@@ -198,6 +232,10 @@ function loadConfig () {
 
 function loadBackup () {
   return fs.readFileSync(backupPath).toString()
+}
+
+function loadAbout () {
+  return fs.readFileSync(aboutPath).toString()
 }
 
 function tryConnectDatabase (server: Server, win: BrowserWindow) {

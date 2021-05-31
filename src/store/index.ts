@@ -176,6 +176,7 @@ export default new Vuex.Store({
     databaseVersion: state => state.databaseVersion,
     basicModelData: state => state.basicModelData,
     dataTableData: state => state.dataTableData,
-    dataTableBackup: state => state.dataTableBackup
+    dataTableBackup: state => state.dataTableBackup,
+    isDatabaseConnected: state => state.databaseVersion !== 'Not connected'
   }
 })

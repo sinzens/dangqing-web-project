@@ -101,6 +101,7 @@ export default {
     floatNotAllowed: '必须是整数',
     negativeFloatNotAllowed: '必须是非负小数',
     nonPositiveIntNotAllowed: '必须是正整数',
+    dropOffNoSecurityNoInvalid: '落客点与安检点必须在对应数据表中存在',
     settings: {
       database: '数据库',
       host: '地址',

@@ -6,7 +6,7 @@
     <v-main>
       <router-view/>
     </v-main>
-    <v-footer class="pa-0" color="primary" app>
+    <v-footer class="pa-0" color="indigo" app>
       <status-bar />
     </v-footer>
     <v-dialog v-model="showNotificationDialog" width="40%">
@@ -40,6 +40,7 @@ export default Vue.extend({
 
   data () {
     return {
+      dataPreFetched: false,
       showNotificationDialog: false,
       notificationTitle: String(),
       notificationContent: String()
@@ -73,8 +74,14 @@ export default Vue.extend({
     },
 
     saveBackup () {
+      const isConnected = this.$store.state.databaseVersion !== 'Not connected'
+      if (!isConnected) { return }
+
       const backup = this.$store.state.dataTableBackup
-      window.ipcRenderer.send('saveBackup', backup)
+      try {
+        JSON.parse(backup)
+        window.ipcRenderer.send('saveBackup', backup)
+      } catch (error) {}
     },
 
     queryResultHandler ({ type, results }: {
