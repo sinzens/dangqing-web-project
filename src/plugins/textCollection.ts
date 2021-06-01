@@ -17,7 +17,9 @@ export default {
       basicModel: '基本模型参数配置',
       batchTable: '波次数据表配置',
       atdTable: '落客到安检数据表配置',
-      dtaTable: '安检点到指定区域数据表配置'
+      dtaTable: '安检点到指定区域数据表配置',
+      stopTable: '落客点数据表配置',
+      securityTable: '安检点数据表配置'
     },
     searchRule: {
       smaller: '小于',
@@ -42,7 +44,7 @@ export default {
     },
     batchTable: {
       batchno: '波次编号',
-      arrialtime: '到达时间 (min)',
+      arrivaltime: '到达时间 (min)',
       arrivalnum: '到达人数',
       dropoff_no: '落客点',
       stand_no: '看台区域号',
@@ -50,17 +52,31 @@ export default {
       sc_capacity: '安检点最大人数'
     },
     atdTable: {
-      area: '落客点',
+      dropoff_no: '落客点',
       name: '详细说明',
-      destination: '安检点',
+      security_no: '安检点',
       path: '路径'
     },
     dtaTable: {
       name: '路径名',
       content: '详细说明',
       security_no: '安检点',
-      areanumber: '看台区域号',
+      stand_no: '看台区域号',
       path: '路径'
+    },
+    stopTable: {
+      area: '落客点编号',
+      name: '详细说明',
+      minvalue: '平均分布最小值',
+      maxvalue: '平均分布最大值',
+      dropoff_way: '落客方式',
+      delta: '波次间隔'
+    },
+    securityTable: {
+      area: '安检点编号',
+      name: '详细说明',
+      minvalue: '平均分布最小值',
+      maxvalue: '平均分布最大值'
     },
     backupTable: {
       identifier: '记录日期'
@@ -102,6 +118,7 @@ export default {
     negativeFloatNotAllowed: '必须是非负小数',
     nonPositiveIntNotAllowed: '必须是正整数',
     dropOffNoSecurityNoInvalid: '落客点与安检点必须在对应数据表中存在',
+    dataModelNotMatch: '数据源格式与数据表格式不匹配',
     settings: {
       database: '数据库',
       host: '地址',

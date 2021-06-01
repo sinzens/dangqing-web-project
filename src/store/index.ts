@@ -13,13 +13,21 @@ export default new Vuex.Store({
   state: {
     currentTab: -1,
     openingTabs: [] as TabItem[],
+
     windowMaximized: false,
+
     config: String(),
     editedConfig: String(),
+
     databaseVersion: 'Not connected',
+
     basicModelData: JSON.stringify(Object()),
     dataTableData: JSON.stringify(Object()),
-    dataTableBackup: JSON.stringify(Object())
+    dataTableBackup: JSON.stringify(Object()),
+
+    showNotificationDialog: false,
+    notificationTitle: String(),
+    notificationContent: String()
   },
 
   mutations: {
@@ -108,6 +116,16 @@ export default new Vuex.Store({
           state.dataTableBackup = JSON.stringify(tableBackups)
         }
       }
+    },
+
+    NOTIFY (state, { show, title, content }: {
+      show: boolean,
+      title: string | undefined,
+      content: string | undefined
+    }) {
+      state.showNotificationDialog = show
+      state.notificationTitle = title || String()
+      state.notificationContent = content || String()
     }
   },
 
@@ -162,6 +180,10 @@ export default new Vuex.Store({
 
     deleteDataTableBackup (context, backup) {
       context.commit('DELETE_DATA_TABLE_BACKUP', backup)
+    },
+
+    notify (context, stateAndInfo) {
+      context.commit('NOTIFY', stateAndInfo)
     }
   },
 
@@ -170,13 +192,21 @@ export default new Vuex.Store({
     currentTabText: state => state.openingTabs[state.currentTab]?.header || String(),
     currentTabPage: state => state.openingTabs[state.currentTab]?.page || 'invalid',
     openingTabs: state => state.openingTabs,
+
     windowMaximized: state => state.windowMaximized,
+
     config: state => state.config,
     editedConfig: state => state.editedConfig,
+
     databaseVersion: state => state.databaseVersion,
+
     basicModelData: state => state.basicModelData,
     dataTableData: state => state.dataTableData,
     dataTableBackup: state => state.dataTableBackup,
-    isDatabaseConnected: state => state.databaseVersion !== 'Not connected'
+    isDatabaseConnected: state => state.databaseVersion !== 'Not connected',
+
+    showNotificationDialog: state => state.showNotificationDialog,
+    notificationTitle: state => state.notificationTitle,
+    notificationContent: state => state.notificationContent
   }
 })

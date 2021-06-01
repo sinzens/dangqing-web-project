@@ -1,5 +1,10 @@
 export default {
+  takeNumberFromString (str: string) {
+    return parseInt(str.replace(/[^0-9]/ig, ''))
+  },
+
   invertKeyValues (obj: Record<string, string> | Map<string, string>) {
+    if (!obj) { return Object() }
     const isMap = 'get' in obj
     if (!isMap) {
       return Object.keys(obj).reduce(
@@ -48,7 +53,26 @@ export default {
     a: Record<string, unknown>,
     b: Record<string, unknown>
   ) {
-    return Object.getPrototypeOf(a) === Object.getPrototypeOf(b)
+    const akeys = new Set(Object.keys(a))
+    const bkeys = new Set(Object.keys(b))
+
+    if (akeys.size !== bkeys.size) { return false }
+    for (const element of akeys) {
+      if (!bkeys.has(element)) { return false }
+      if (typeof (a[element]) !== typeof (b[element])) {
+        return false
+      }
+    }
+
+    return true
+  },
+
+  objectTypeInfo (obj: Record<string, unknown>) {
+    const info = Object() as Record<string, string>
+    Object.keys(obj).forEach(key => {
+      info[key] = typeof (obj[key])
+    })
+    return JSON.stringify(info)
   },
 
   isNonnegativeFloat (value: number | string) {

@@ -11,14 +11,14 @@
     </v-footer>
     <v-dialog v-model="showNotificationDialog" width="40%">
       <v-card tile>
-        <v-card-title class="headline" v-text="notificationTitle" />
-        <v-card-text v-text="notificationContent" />
+        <v-card-title class="headline" v-text="this.$store.getters.notificationTitle" />
+        <v-card-text v-text="this.$store.getters.notificationContent" />
         <v-divider />
         <v-card-actions>
           <v-spacer />
           <v-btn
             color="primary"
-            @click="showNotificationDialog = false"
+            @click="$store.dispatch('notify', { show: false })"
             v-text="$texts.text.confirm"
             tile
             text
@@ -37,15 +37,6 @@ import StatusBar from './components/StatusBar.vue'
 export default Vue.extend({
   name: 'App',
   components: { TitleBar, StatusBar },
-
-  data () {
-    return {
-      dataPreFetched: false,
-      showNotificationDialog: false,
-      notificationTitle: String(),
-      notificationContent: String()
-    }
-  },
 
   methods: {
     checkConfig () {
@@ -118,15 +109,19 @@ export default Vue.extend({
     },
 
     onError (_event: unknown, message: string) {
-      this.notificationTitle = this.$texts.title.error
-      this.notificationContent = message
-      this.showNotificationDialog = true
+      this.$store.dispatch('notify', {
+        show: true,
+        title: this.$texts.title.error,
+        content: message
+      })
     },
 
     onInfo (_event: unknown, message: string) {
-      this.notificationTitle = this.$texts.title.notification
-      this.notificationContent = message
-      this.showNotificationDialog = true
+      this.$store.dispatch('notify', {
+        show: true,
+        title: this.$texts.title.notification,
+        content: message
+      })
     },
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -156,6 +151,19 @@ export default Vue.extend({
       window.removeEventListener('beforeunload', this.saveBackup)
     }
   },
+
+  computed: {
+    showNotificationDialog: {
+      get () {
+        return this.$store.getters.showNotificationDialog as boolean
+      },
+
+      set (show: boolean) {
+        this.$store.dispatch('notify', { show })
+      }
+    }
+  },
+
   created () {
     this.attachEvents()
     this.checkConfig()
@@ -173,5 +181,8 @@ export default Vue.extend({
 <style lang="scss">
 .v-dialog {
   border-radius: 0 !important;
+  .v-card__text {
+    white-space: pre-wrap !important;
+  }
 }
 </style>

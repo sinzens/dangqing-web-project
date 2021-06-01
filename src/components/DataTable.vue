@@ -220,6 +220,16 @@ export default Vue.extend({
           this.$nextTick(() => {
             this.dataFetched = true
           })
+        } else {
+          const receivedType = Public.objectTypeInfo(results[0])
+          const supposedType = Public.objectTypeInfo(
+            this.dataTableModel.itemModel as unknown as Record<string, unknown>
+          )
+          this.$store.dispatch('notify', {
+            show: true,
+            title: this.$texts.title.error,
+            content: `${this.$texts.text.dataModelNotMatch},\n数据表格式:\n${supposedType},\n数据源格式:\n${receivedType}`
+          })
         }
       }
     },
@@ -332,17 +342,19 @@ export default Vue.extend({
     ) {
       const newItem = newItem_ as unknown as Record<string, unknown>
       const oldItem = oldItem_ as unknown as Record<string, unknown>
-      const values = Object.keys(newItem).map(key => `${key} = '${newItem[key]}'`)
-      const conditions = this.dataTableModel.keys.map(key => `${key} = '${oldItem[key]}'`)
+
+      const values = Object.keys(newItem).map(key => `\`${key}\` = '${newItem[key]}'`)
+      const conditions = this.dataTableModel.keys.map(key => `\`${key}\` = '${oldItem[key]}'`)
       const valuesStr = values.join(', ')
       const conditionsStr = conditions.join(' and ')
       const sql = `update ${this.dataTableModel.sourceName} set ${valuesStr} where ${conditionsStr}`
+
       window.ipcRenderer.send('query', { type: 'updateData', sql: sql })
     },
 
     deleteItemToDatabase (item_: DataTableItem) {
       const item = item_ as unknown as Record<string, unknown>
-      const conditions = this.dataTableModel.keys.map(key => `${key} = '${item[key]}'`)
+      const conditions = this.dataTableModel.keys.map(key => `\`${key}\` = '${item[key]}'`)
       const conditionsStr = conditions.join(' and ')
       const sql = `delete from ${this.dataTableModel.sourceName} where ${conditionsStr}`
       window.ipcRenderer.send('query', { type: 'deleteData', sql: sql })
@@ -368,7 +380,7 @@ export default Vue.extend({
     headerMap (): Record<string, string> {
       const tableName = this.dataTableModel.tableName as string
       const recordGroup = this.$texts.header as Record<string, unknown>
-      return recordGroup[tableName] as Record<string, string>
+      return recordGroup[tableName] as Record<string, string> || Object()
     },
 
     headerMapInverted (): Record<string, string> {

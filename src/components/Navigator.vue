@@ -61,6 +61,16 @@ export default Vue.extend({
           header: this.$texts.header.navigator.dtaTable,
           icon: 'mdi-table',
           key: 'dtaTable'
+        },
+        {
+          header: this.$texts.header.navigator.stopTable,
+          icon: 'mdi-table',
+          key: 'stopTable'
+        },
+        {
+          header: this.$texts.header.navigator.securityTable,
+          icon: 'mdi-table',
+          key: 'securityTable'
         }
       ] as NavigationItem[]
     }
@@ -68,13 +78,12 @@ export default Vue.extend({
 
   computed: {
     navigateIndex: {
-      get () {
+      get (): number | undefined {
         const tabs = this.$store.getters.openingTabs as TabItem[]
         const currentTabIndex = this.$store.getters.currentTab
         const currentTab = tabs[currentTabIndex]
         if (currentTab) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          return (this as any).items.findIndex((item: NavigationItem) => {
+          return this.items.findIndex((item: NavigationItem) => {
             return item.key === currentTab.page
           })
         } else {

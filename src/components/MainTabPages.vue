@@ -29,7 +29,9 @@ export default Vue.extend({
       return (
         page === 'batchTable' ||
         page === 'atdTable' ||
-        page === 'dtaTable'
+        page === 'dtaTable' ||
+        page === 'stopTable' ||
+        page === 'securityTable'
       )
     }
   }

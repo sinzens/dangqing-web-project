@@ -5,17 +5,44 @@ export type Page
   | 'batchTable'
   | 'atdTable'
   | 'dtaTable'
+  | 'stopTable'
+  | 'securityTable'
   | 'settings'
   | 'about'
   | 'invalid'
 
-export type Table = 'batchTable' | 'atdTable' | 'dtaTable' | 'invalid'
-export type TableSource = 'batch' | 'path_1' | 'path_2' | 'invalid'
+export type Table
+  = 'batchTable'
+  | 'atdTable'
+  | 'dtaTable'
+  | 'stopTable'
+  | 'securityTable'
+  | 'invalid'
+
+export type TableSource
+  = 'batch'
+  | 'path_1'
+  | 'path_2'
+  | 'stop_point'
+  | 'security_point'
+  | 'invalid'
+
 export type TableInputType = 'input' | 'select'
 export type TableValueType = 'string' | 'number'
 
-export type DataTableItem = BatchItem | AtdPathItem | DtaPathItem
-export type DataTableItems = BatchItem[] | AtdPathItem[] | DtaPathItem[]
+export type DataTableItem
+  = BatchItem
+  | AtdPathItem
+  | DtaPathItem
+  | stopPointItem
+  | securityPointItem
+
+export type DataTableItems
+  = BatchItem[]
+  | AtdPathItem[]
+  | DtaPathItem[]
+  | stopPointItem[]
+  | securityPointItem[]
 
 export type FormItemValue = string | number | string[] | number[]
 
@@ -70,18 +97,18 @@ export interface DataTableBackup {
 
 export interface BatchItem {
   batchno: number
-  arrialtime: number
+  arrivaltime: number
   arrivalnum: number
   dropoff_no: string
-  stand_no: number
+  stand_no: string
   security_no: string
   sc_capacity: number
 }
 
 export interface AtdPathItem {
-  area: string
+  dropoff_no: string
   name: string
-  destination: string
+  security_no: string
   path: string
 }
 
@@ -89,8 +116,24 @@ export interface DtaPathItem {
   name: string
   content: string
   security_no: string
-  areanumber: number
+  stand_no: string
   path: string
+}
+
+export interface stopPointItem {
+  area: string
+  name: string
+  minvalue: number
+  maxvalue: number
+  dropoff_way: number
+  delta: number
+}
+
+export interface securityPointItem {
+  area: string
+  name: string
+  minvalue: number
+  maxvalue: number
 }
 
 declare module 'vue/types/vue' {

@@ -29,9 +29,10 @@ import BackupTable from './BackupTable.vue'
 import {
   AtdPathItem,
   BatchItem,
-  // DataTableItems,
   DataTableModel,
   DtaPathItem,
+  securityPointItem,
+  stopPointItem,
   Table,
   TableSource
 } from '../interface'
@@ -81,7 +82,7 @@ export default Vue.extend({
                 domain: Public.numberArrayFromRange(1, 233)
               },
               {
-                value: 'arrialtime',
+                value: 'arrivaltime',
                 inputType: 'input',
                 valueType: 'number'
               },
@@ -98,7 +99,7 @@ export default Vue.extend({
               {
                 value: 'stand_no',
                 inputType: 'select',
-                domain: Public.numberArrayFromRange(1, 48)
+                domain: Public.numberTextArrayFromRange(1, 48)
               },
               {
                 value: 'security_no',
@@ -114,10 +115,10 @@ export default Vue.extend({
 
             itemModel: {
               batchno: 1,
-              arrialtime: 0,
+              arrivaltime: 0,
               arrivalnum: 0,
               dropoff_no: '01',
-              stand_no: 1,
+              stand_no: '1',
               security_no: '01',
               sc_capacity: 100
             } as BatchItem,
@@ -146,7 +147,7 @@ export default Vue.extend({
             validate: (item: BatchItem) => {
               const { results } = window.ipcRenderer.sendSync('querySync', {
                 type: 'getTableData',
-                sql: `select * from path_1 where area = ${item.dropoff_no} and destination = ${item.security_no}`
+                sql: `select * from path_1 where dropoff_no = ${item.dropoff_no} and security_no = ${item.security_no}`
               })
               if (results) {
                 return (results as unknown[]).length !== 0
@@ -161,13 +162,13 @@ export default Vue.extend({
           'atdTable', {
             headers: [
               {
-                value: 'area',
+                value: 'dropoff_no',
                 inputType: 'select',
                 domain: Array.from(DropOffMap.values())
               },
               { value: 'name', inputType: 'input' },
               {
-                value: 'destination',
+                value: 'security_no',
                 inputType: 'select',
                 domain: Array.from(SecurityMap.values())
               },
@@ -175,29 +176,29 @@ export default Vue.extend({
             ],
 
             itemModel: {
-              area: '01',
+              dropoff_no: '01',
               name: '',
-              destination: '01',
+              security_no: '01',
               path: ''
             } as AtdPathItem,
 
-            keys: ['area', 'destination'],
+            keys: ['dropoff_no', 'security_no'],
 
-            sortBy: 'area',
+            sortBy: 'dropoff_no',
             tableName: this.table,
             sourceName: 'path_1',
 
             converter: (item_: AtdPathItem) => {
               const item = Object.assign({}, item_)
-              item.area = this.dropOffNumberToText(item.area)
-              item.destination = this.securityNumberToText(item.destination)
+              item.dropoff_no = this.dropOffNumberToText(item.dropoff_no)
+              item.security_no = this.securityNumberToText(item.security_no)
               return item
             },
 
             invertConverter: (item_: AtdPathItem) => {
               const item = Object.assign({}, item_)
-              item.area = this.dropOffTextToNumber(item.area)
-              item.destination = this.securityTextToNumber(item.destination)
+              item.dropoff_no = this.dropOffTextToNumber(item.dropoff_no)
+              item.security_no = this.securityTextToNumber(item.security_no)
               return item
             }
           } as DataTableModel
@@ -206,7 +207,15 @@ export default Vue.extend({
         [
           'dtaTable', {
             headers: [
-              { value: 'name', inputType: 'input' },
+              {
+                value: 'name',
+                inputType: 'input',
+                sort: (a: string, b: string) => {
+                  return (
+                    Public.takeNumberFromString(a) - Public.takeNumberFromString(b)
+                  )
+                }
+              },
               { value: 'content', inputType: 'input' },
               {
                 value: 'security_no',
@@ -214,9 +223,9 @@ export default Vue.extend({
                 domain: Array.from(SecurityMap.values())
               },
               {
-                value: 'areanumber',
+                value: 'stand_no',
                 inputType: 'select',
-                domain: Public.numberArrayFromRange(1, 48)
+                domain: Public.numberTextArrayFromRange(1, 48)
               },
               { value: 'path', inputType: 'input' }
             ],
@@ -225,7 +234,7 @@ export default Vue.extend({
               name: '',
               content: '',
               security_no: '01',
-              areanumber: 1,
+              stand_no: '1',
               path: ''
             } as DtaPathItem,
 
@@ -247,6 +256,90 @@ export default Vue.extend({
               return item
             }
           } as DataTableModel
+        ],
+
+        [
+          'stopTable', {
+            headers: [
+              {
+                value: 'area',
+                inputType: 'select',
+                domain: Array.from(DropOffMap.keys())
+              },
+              { value: 'name', inputType: 'input' },
+              {
+                value: 'minvalue',
+                inputType: 'input',
+                valueType: 'number'
+              },
+              {
+                value: 'maxvalue',
+                inputType: 'input',
+                valueType: 'number'
+              },
+              {
+                value: 'dropoff_way',
+                inputType: 'select',
+                domain: Public.numberArrayFromRange(0, 1)
+              },
+              {
+                value: 'delta',
+                inputType: 'input',
+                valueType: 'number'
+              }
+            ],
+
+            itemModel: {
+              area: '01',
+              name: '',
+              minvalue: 5,
+              maxvalue: 10,
+              dropoff_way: 0,
+              delta: 0
+            } as stopPointItem,
+
+            keys: ['area'],
+
+            sortBy: 'area',
+            tableName: this.table,
+            sourceName: 'stop_point'
+          }
+        ],
+
+        [
+          'securityTable', {
+            headers: [
+              {
+                value: 'area',
+                inputType: 'select',
+                domain: Array.from(SecurityMap.keys())
+              },
+              { value: 'name', inputType: 'input' },
+              {
+                value: 'minvalue',
+                inputType: 'input',
+                valueType: 'number'
+              },
+              {
+                value: 'maxvalue',
+                inputType: 'input',
+                valueType: 'number'
+              }
+            ],
+
+            itemModel: {
+              area: '01',
+              name: '',
+              minvalue: 5,
+              maxvalue: 10
+            } as securityPointItem,
+
+            keys: ['area'],
+
+            sortBy: 'area',
+            tableName: this.table,
+            sourceName: 'security_point'
+          }
         ]
       ])
     },

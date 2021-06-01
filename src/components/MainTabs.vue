@@ -218,7 +218,9 @@ export default Vue.extend({
         page === 'basicModel' ||
         page === 'batchTable' ||
         page === 'atdTable' ||
-        page === 'dtaTable'
+        page === 'dtaTable' ||
+        page === 'stopTable' ||
+        page === 'securityTable'
       )
     }
   }

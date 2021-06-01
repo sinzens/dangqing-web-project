@@ -234,10 +234,6 @@ function loadBackup () {
   return fs.readFileSync(backupPath).toString()
 }
 
-function loadAbout () {
-  return fs.readFileSync(aboutPath).toString()
-}
-
 function tryConnectDatabase (server: Server, win: BrowserWindow) {
   server.connect((error) => {
     if (error) {
