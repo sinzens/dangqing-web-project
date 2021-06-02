@@ -112,7 +112,7 @@ export default {
     table: string,
     newItem: Record<string, unknown>,
     oldItem: Record<string, unknown>,
-    keys: string[],
+    keys: string[]
   ) {
     const values = Object.keys(newItem).map(key => `\`${key}\` = '${newItem[key]}'`)
     const conditions = keys.map(key => `\`${key}\` = '${oldItem[key]}'`)
