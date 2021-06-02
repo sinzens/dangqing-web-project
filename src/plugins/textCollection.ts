@@ -26,7 +26,8 @@ export default {
       equal: '等于',
       larger: '大于',
       smallerEqual: '小于等于',
-      largerEqual: '大于等于'
+      largerEqual: '大于等于',
+      pathInclude: '包含路径'
     },
     captionMenu: {
       settings: '设置',
@@ -67,16 +68,16 @@ export default {
     stopTable: {
       area: '落客点编号',
       name: '详细说明',
-      minvalue: '平均分布最小值',
-      maxvalue: '平均分布最大值',
+      p_minvalue: '平均分布最小值',
+      p_maxvalue: '平均分布最大值',
       dropoff_way: '落客方式',
       delta: '波次间隔'
     },
     securityTable: {
       area: '安检点编号',
       name: '详细说明',
-      minvalue: '平均分布最小值',
-      maxvalue: '平均分布最大值'
+      p_minvalue: '平均分布最小值',
+      p_maxvalue: '平均分布最大值'
     },
     backupTable: {
       identifier: '记录日期'
@@ -95,6 +96,7 @@ export default {
       databaseVersion: '数据库版本'
     },
     exportData: '导出数据',
+    updateDatabase: '写入数据库',
     fileName: '文件名',
     extName: '后缀名',
     noData: '没有数据',
@@ -105,6 +107,11 @@ export default {
     deleteDataItemConfirm: '确定要删除此数据吗 (可以从备份中恢复)',
     deleteBackupConfirm: '确定要删除备份记录吗 (不可恢复)',
     editDataItem: '修改数据',
+    insertDataSuccess: '插入数据成功',
+    updateDataSuccess: '修改数据成功',
+    deleteDataSuccess: '删除数据成功',
+    restoreDataSuccess: '还原数据成功',
+    noNeedToRestore: '备份记录与当前数据一致, 无需还原',
     configError: '配置解析失败',
     backupError: '备份文件解析失败',
     selectAll: '全部选择',
@@ -116,9 +123,11 @@ export default {
     integerNotAllowed: '必须是小数',
     floatNotAllowed: '必须是整数',
     negativeFloatNotAllowed: '必须是非负小数',
+    negativeFloatOrNonUniformNotAllowed: '必须是非负小数或uniform字符串',
     nonPositiveIntNotAllowed: '必须是正整数',
     dropOffNoSecurityNoInvalid: '落客点与安检点必须在对应数据表中存在',
-    dataModelNotMatch: '数据源格式与数据表格式不匹配',
+    dataModelNotMatch: '数据源格式与数据表格式不匹配, 在正确匹配格式前, 请不要对表中数据进行修改, 以免发生不良后果',
+    databaseUpdated: '数据库已更新',
     settings: {
       database: '数据库',
       host: '地址',

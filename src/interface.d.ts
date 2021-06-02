@@ -34,15 +34,15 @@ export type DataTableItem
   = BatchItem
   | AtdPathItem
   | DtaPathItem
-  | stopPointItem
-  | securityPointItem
+  | StopPointItem
+  | SecurityPointItem
 
 export type DataTableItems
   = BatchItem[]
   | AtdPathItem[]
   | DtaPathItem[]
-  | stopPointItem[]
-  | securityPointItem[]
+  | StopPointItem[]
+  | SecurityPointItem[]
 
 export type FormItemValue = string | number | string[] | number[]
 
@@ -87,12 +87,21 @@ export interface DataTableModel {
   invalidInfo?: string
   converter?: (item: DataTableItem) => DataTableItem
   invertConverter?: (item: DataTableItem) => DataTableItem
-  validate?: (item: DataTableItem) => boolean | Promise<boolean>
+  validate?: (item: DataTableItem) => boolean
 }
 
 export interface DataTableBackup {
   identifier: string
   data: DataTableItems
+}
+
+export interface BasicModel {
+  selected_batches: string
+  initial_speed: string
+  preferred_speed: string
+  record_point_interval: number
+  write_csv_interval: number
+  number_of_people: number
 }
 
 export interface BatchItem {
@@ -120,20 +129,20 @@ export interface DtaPathItem {
   path: string
 }
 
-export interface stopPointItem {
+export interface StopPointItem {
   area: string
   name: string
-  minvalue: number
-  maxvalue: number
+  p_minvalue: number
+  p_maxvalue: number
   dropoff_way: number
   delta: number
 }
 
-export interface securityPointItem {
+export interface SecurityPointItem {
   area: string
   name: string
-  minvalue: number
-  maxvalue: number
+  p_minvalue: number
+  p_maxvalue: number
 }
 
 declare module 'vue/types/vue' {

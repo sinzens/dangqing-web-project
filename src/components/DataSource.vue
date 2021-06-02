@@ -31,8 +31,8 @@ import {
   BatchItem,
   DataTableModel,
   DtaPathItem,
-  securityPointItem,
-  stopPointItem,
+  SecurityPointItem,
+  StopPointItem,
   Table,
   TableSource
 } from '../interface'
@@ -126,7 +126,7 @@ export default Vue.extend({
             keys: ['batchno'],
 
             sortBy: 'batchno',
-            tableName: this.table,
+            tableName: 'batchTable',
             sourceName: 'batch',
             invalidInfo: this.$texts.text.dropOffNoSecurityNoInvalid,
 
@@ -185,7 +185,7 @@ export default Vue.extend({
             keys: ['dropoff_no', 'security_no'],
 
             sortBy: 'dropoff_no',
-            tableName: this.table,
+            tableName: 'atdTable',
             sourceName: 'path_1',
 
             converter: (item_: AtdPathItem) => {
@@ -241,7 +241,7 @@ export default Vue.extend({
             keys: ['name'],
 
             sortBy: 'name',
-            tableName: this.table,
+            tableName: 'dtaTable',
             sourceName: 'path_2',
 
             converter: (item_: DtaPathItem) => {
@@ -264,16 +264,16 @@ export default Vue.extend({
               {
                 value: 'area',
                 inputType: 'select',
-                domain: Array.from(DropOffMap.keys())
+                domain: Array.from(DropOffMap.values())
               },
               { value: 'name', inputType: 'input' },
               {
-                value: 'minvalue',
+                value: 'p_minvalue',
                 inputType: 'input',
                 valueType: 'number'
               },
               {
-                value: 'maxvalue',
+                value: 'p_maxvalue',
                 inputType: 'input',
                 valueType: 'number'
               },
@@ -292,18 +292,30 @@ export default Vue.extend({
             itemModel: {
               area: '01',
               name: '',
-              minvalue: 5,
-              maxvalue: 10,
+              p_minvalue: 5,
+              p_maxvalue: 10,
               dropoff_way: 0,
               delta: 0
-            } as stopPointItem,
+            } as StopPointItem,
 
             keys: ['area'],
 
             sortBy: 'area',
-            tableName: this.table,
-            sourceName: 'stop_point'
-          }
+            tableName: 'stopTable',
+            sourceName: 'stop_point',
+
+            converter: (item_: StopPointItem) => {
+              const item = Object.assign({}, item_)
+              item.area = this.dropOffNumberToText(item.area)
+              return item
+            },
+
+            invertConverter: (item_: StopPointItem) => {
+              const item = Object.assign({}, item_)
+              item.area = this.dropOffTextToNumber(item.area)
+              return item
+            }
+          } as DataTableModel
         ],
 
         [
@@ -312,16 +324,16 @@ export default Vue.extend({
               {
                 value: 'area',
                 inputType: 'select',
-                domain: Array.from(SecurityMap.keys())
+                domain: Array.from(SecurityMap.values())
               },
               { value: 'name', inputType: 'input' },
               {
-                value: 'minvalue',
+                value: 'p_minvalue',
                 inputType: 'input',
                 valueType: 'number'
               },
               {
-                value: 'maxvalue',
+                value: 'p_maxvalue',
                 inputType: 'input',
                 valueType: 'number'
               }
@@ -330,16 +342,28 @@ export default Vue.extend({
             itemModel: {
               area: '01',
               name: '',
-              minvalue: 5,
-              maxvalue: 10
-            } as securityPointItem,
+              p_minvalue: 5,
+              p_maxvalue: 10
+            } as SecurityPointItem,
 
             keys: ['area'],
 
             sortBy: 'area',
-            tableName: this.table,
-            sourceName: 'security_point'
-          }
+            tableName: 'securityTable',
+            sourceName: 'security_point',
+
+            converter: (item_: SecurityPointItem) => {
+              const item = Object.assign({}, item_)
+              item.area = this.securityNumberToText(item.area)
+              return item
+            },
+
+            invertConverter: (item_: SecurityPointItem) => {
+              const item = Object.assign({}, item_)
+              item.area = this.securityTextToNumber(item.area)
+              return item
+            }
+          } as DataTableModel
         ]
       ])
     },

@@ -1,33 +1,45 @@
-import mysql from 'mysql'
+import mysql from 'mysql2'
 
 export default class Server {
-  private config: mysql.ConnectionConfig
+  private config: mysql.ConnectionOptions
   private connection!: mysql.Connection
+  private connected = false
 
-  public constructor (config_: mysql.ConnectionConfig) {
+  public constructor (config_: mysql.ConnectionOptions) {
     const config = Object.assign({}, config_)
     config.multipleStatements = true
     this.config = config
   }
 
   public connect (
-    callback?: ((err: mysql.MysqlError, ...args: any[]) => void) |
-    undefined
+    callback?: ((err: mysql.QueryError | null) => void)
   ) {
     this.connection = mysql.createConnection(this.config)
-    this.connection.connect(callback)
+    this.connection.connect(error => {
+      if (!error) { this.connected = true }
+      if (callback) { callback(error) }
+    })
   }
 
-  public disconnect () {
-    this.connection.end()
+  public disconnect (
+    callback?: ((err: mysql.QueryError | null) => void)
+  ) {
+    if (this.isConnected()) {
+      this.connection.end(error => {
+        if (!error) { this.connected = false }
+        if (callback) {
+          callback(error)
+        }
+      })
+    }
   }
 
   public query(
     sql: string,
     callback?: ((
-      err: mysql.MysqlError | null,
+      err: mysql.QueryError | null,
       results: any,
-      field: mysql.FieldInfo[] | undefined
+      field: mysql.FieldPacket[] | undefined
     ) => void) | undefined
   ) {
     if (this.isConnected()) {
@@ -50,9 +62,6 @@ export default class Server {
   }
 
   public isConnected () {
-    return (
-      this.connection.state === 'connected' ||
-      this.connection.state === 'authenticated'
-    )
+    return this.connected
   }
 }

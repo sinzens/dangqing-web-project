@@ -6,7 +6,7 @@ import excel, { BookType } from 'xlsx'
 import { app, protocol, BrowserWindow, ipcMain } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
-import { ConnectionConfig, MysqlError } from 'mysql'
+import { ConnectionOptions, QueryError } from 'mysql2'
 import Server from './server/server'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
@@ -133,7 +133,7 @@ function initIpcConnections (win: BrowserWindow) {
     if (!server) { return }
     server.queryAndWait(sql).then((value) => {
       const { error, results, field } = value as {
-        error: MysqlError | null,
+        error: QueryError | null,
         results: unknown,
         field: unknown
       }
@@ -221,7 +221,7 @@ function initBackup (win: BrowserWindow) {
 
 function initServer (win: BrowserWindow) {
   if (config) {
-    server = new Server(config['database'] as ConnectionConfig)
+    server = new Server(config['database'] as ConnectionOptions)
     tryConnectDatabase(server, win)
   }
 }
@@ -237,8 +237,12 @@ function loadBackup () {
 function tryConnectDatabase (server: Server, win: BrowserWindow) {
   server.connect((error) => {
     if (error) {
-      server.disconnect()
       win.webContents.send('error', error.message)
+      server.disconnect(error => {
+        if (error) {
+          win.webContents.send('error', error.message)
+        }
+      })
       setTimeout(() => {
         tryConnectDatabase(server, win)
       }, 5000)

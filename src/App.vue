@@ -11,14 +11,14 @@
     </v-footer>
     <v-dialog v-model="showNotificationDialog" width="40%">
       <v-card tile>
-        <v-card-title class="headline" v-text="this.$store.getters.notificationTitle" />
-        <v-card-text v-text="this.$store.getters.notificationContent" />
+        <v-card-title class="headline" v-text="$store.getters.notificationTitle" />
+        <v-card-text v-text="$store.getters.notificationContent" />
         <v-divider />
         <v-card-actions>
           <v-spacer />
           <v-btn
             color="primary"
-            @click="$store.dispatch('notify', { show: false })"
+            @click="showNotificationDialog = false"
             v-text="$texts.text.confirm"
             tile
             text
@@ -26,6 +26,23 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-snackbar
+      v-model="showSnack"
+      color="indigo"
+      timeout="2000"
+      elevation="2"
+      tile
+    >
+      {{ $store.getters.snackContent }}
+      <template v-slot:action="{ attrs }">
+        <v-icon
+          v-text="'mdi-close'"
+          v-bind="attrs"
+          @click="showSnack = false"
+          small
+        />
+      </template>
+    </v-snackbar>
   </v-app>
 </template>
 
@@ -86,6 +103,34 @@ export default Vue.extend({
             'setDatabaseVersion',
             results[0]['VERSION()'] as string
           )
+          break
+        }
+        case 'insertData': {
+          this.$store.dispatch('snackNotify', {
+            show: true,
+            content: this.$texts.text.insertDataSuccess
+          })
+          break
+        }
+        case 'updateData': {
+          this.$store.dispatch('snackNotify', {
+            show: true,
+            content: this.$texts.text.updateDataSuccess
+          })
+          break
+        }
+        case 'deleteData': {
+          this.$store.dispatch('snackNotify', {
+            show: true,
+            content: this.$texts.text.deleteDataSuccess
+          })
+          break
+        }
+        case 'restoreData': {
+          this.$store.dispatch('snackNotify', {
+            show: true,
+            content: this.$texts.text.restoreDataSuccess
+          })
           break
         }
       }
@@ -160,6 +205,16 @@ export default Vue.extend({
 
       set (show: boolean) {
         this.$store.dispatch('notify', { show })
+      }
+    },
+
+    showSnack: {
+      get () {
+        return this.$store.getters.showSnack as boolean
+      },
+
+      set (show: boolean) {
+        this.$store.dispatch('snackNotify', { show })
       }
     }
   },

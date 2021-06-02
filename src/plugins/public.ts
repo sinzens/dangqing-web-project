@@ -81,5 +81,55 @@ export default {
 
   isPositiveInt (value: number | string) {
     return String(value).match(RegExp(/^[1-9]\d*$/)) !== null
+  },
+
+  isNonnegativeFloatOrUniform (value: number | string) {
+    const str = String(value)
+    const uniformStart = str.indexOf('uniform')
+    if (uniformStart !== -1) {
+      return str.match(RegExp(
+        /uniform[\s]*\([\s]*[0-9.]+[\s]*,[\s]*[0-9.]+[\s]*\)/
+      )) !== null
+    } else {
+      return this.isNonnegativeFloat(str)
+    }
+  },
+
+  objectArrayToMap (arr: Record<string, string | number>[], keys: string[]) {
+    return new Map(arr.map(element => {
+      return [keys.map(key => element[key]).join(','), element]
+    }))
+  },
+
+  getInsertSql (table: string, item: Record<string, unknown>) {
+    const values = Object.values(item).map(value => `'${value}'`)
+    const valuesStr = values.join(', ')
+    const sql = `insert into ${table} values (${valuesStr})`
+    return sql
+  },
+
+  getUpdateSql (
+    table: string,
+    newItem: Record<string, unknown>,
+    oldItem: Record<string, unknown>,
+    keys: string[],
+  ) {
+    const values = Object.keys(newItem).map(key => `\`${key}\` = '${newItem[key]}'`)
+    const conditions = keys.map(key => `\`${key}\` = '${oldItem[key]}'`)
+    const valuesStr = values.join(', ')
+    const conditionsStr = conditions.join(' and ')
+    const sql = `update ${table} set ${valuesStr} where ${conditionsStr}`
+    return sql
+  },
+
+  getDeleteSql (
+    table: string,
+    item: Record<string, unknown>,
+    keys: string[]
+  ) {
+    const conditions = keys.map(key => `\`${key}\` = '${item[key]}'`)
+    const conditionsStr = conditions.join(' and ')
+    const sql = `delete from ${table} where ${conditionsStr}`
+    return sql
   }
 }

@@ -79,13 +79,23 @@
 
 <script lang="ts">
 import Vue, { PropType } from 'vue'
+import Public from '../plugins/public'
 import {
   DataTableBackup,
   DataTableHeader,
   DataTableItem,
+  DataTableItems,
   DataTableModel,
   Table
 } from '../interface'
+
+type DifferenceType = 'notIncluded' | 'overIncluded' | 'value'
+
+interface DataDifference {
+  type: DifferenceType
+  target: DataTableItem | null
+  model: DataTableItem | null
+}
 
 export default Vue.extend({
   name: 'BackupTable',
@@ -148,15 +158,96 @@ export default Vue.extend({
     },
 
     restoreToDatabase (items: DataTableItem[]) {
-      const insertedStr = items.map((item: DataTableItem) => {
-        const values = Object.values(item).map(value => `'${value}'`)
-        const valuesStr = values.join(', ')
-        return `(${valuesStr})`
-      }).join(', ')
-      const clearSql = `delete from ${this.dataTableModel.sourceName}`
-      const insertSql = `insert into ${this.dataTableModel.sourceName} values ${insertedStr}`
-      const sql = [clearSql, insertSql].join('; ')
+      const tablesData = JSON.parse(
+        this.$store.getters.dataTableData
+      ) as Record<Table, DataTableItems>
+      const current = tablesData[this.dataTableModel.tableName] || []
+      const differences = this.getDifferences([...current], [...items])
+
+      if (differences.length === 0) {
+        this.$store.dispatch('notify', {
+          show: true,
+          title: this.$texts.title.notification,
+          content: this.$texts.text.noNeedToRestore
+        })
+        return
+      }
+
+      const sqls = differences.map(diff => {
+        const targetItem = diff.target as unknown as (Record<string, unknown> | null)
+        const modelItem = diff.model as unknown as (Record<string, unknown> | null)
+
+        switch (diff.type) {
+          case 'value':
+            return Public.getUpdateSql(
+              this.dataTableModel.sourceName,
+              modelItem as Record<string, unknown>,
+              targetItem as Record<string, unknown>,
+              this.dataTableModel.keys
+            )
+          case 'notIncluded':
+            return Public.getInsertSql(
+              this.dataTableModel.sourceName,
+              modelItem as Record<string, unknown>
+            )
+          case 'overIncluded':
+            return Public.getDeleteSql(
+              this.dataTableModel.sourceName,
+              targetItem as Record<string, unknown>,
+              this.dataTableModel.keys
+            )
+        }
+      })
+
+      const sql = sqls.join('; ')
       window.ipcRenderer.send('query', { type: 'restoreData', sql: sql })
+    },
+
+    getDifferences (
+      target: DataTableItem[],
+      model: DataTableItem[]
+    ) {
+      const differences = [] as DataDifference[]
+
+      const targetMap = Public.objectArrayToMap(
+        target as unknown as Record<string, string | number>[],
+        this.dataTableModel.keys
+      )
+      const modelMap = Public.objectArrayToMap(
+        model as unknown as Record<string, string | number>[],
+        this.dataTableModel.keys
+      )
+
+      modelMap.forEach((modelItem, key) => {
+        if (!targetMap.has(key)) {
+          differences.push({
+            type: 'notIncluded',
+            target: null,
+            model: modelItem as unknown as DataTableItem
+          })
+        } else {
+          const targetItem = targetMap.get(key) as Record<string, string | number>
+          if (this.itemAttrs.find(attr => targetItem[attr] !== modelItem[attr])) {
+            differences.push({
+              type: 'value',
+              target: targetItem as unknown as DataTableItem,
+              model: modelItem as unknown as DataTableItem
+            })
+          }
+        }
+      })
+
+      targetMap.forEach((targetItem, key) => {
+        if (!modelMap.has(key)) {
+          differences.push({
+            type: 'overIncluded',
+            target: targetItem as unknown as DataTableItem,
+            model: null
+          })
+        }
+      })
+
+      return differences
     }
   },
 
@@ -213,6 +304,10 @@ export default Vue.extend({
         }
         return header
       })
+    },
+
+    itemAttrs () {
+      return Object.keys(this.dataTableModel.itemModel)
     }
   }
 })

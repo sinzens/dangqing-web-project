@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import {
+  BasicModel,
   DataTableBackup,
   DataTableItems,
   TabItem,
@@ -27,7 +28,10 @@ export default new Vuex.Store({
 
     showNotificationDialog: false,
     notificationTitle: String(),
-    notificationContent: String()
+    notificationContent: String(),
+
+    showSnack: false,
+    snackContent: String()
   },
 
   mutations: {
@@ -70,7 +74,7 @@ export default new Vuex.Store({
       state.databaseVersion = version
     },
 
-    SET_BASIC_MODEL_DATA (state, data: Record<string, unknown>) {
+    SET_BASIC_MODEL_DATA (state, data: BasicModel) {
       state.basicModelData = JSON.stringify(data)
     },
 
@@ -126,6 +130,14 @@ export default new Vuex.Store({
       state.showNotificationDialog = show
       state.notificationTitle = title || String()
       state.notificationContent = content || String()
+    },
+
+    SNACK_NOTIFY (state, { show, content }: {
+      show: boolean,
+      content: string | undefined
+    }) {
+      state.showSnack = show
+      state.snackContent = content || String()
     }
   },
 
@@ -184,6 +196,10 @@ export default new Vuex.Store({
 
     notify (context, stateAndInfo) {
       context.commit('NOTIFY', stateAndInfo)
+    },
+
+    snackNotify (context, stateAndInfo) {
+      context.commit('SNACK_NOTIFY', stateAndInfo)
     }
   },
 
@@ -207,6 +223,9 @@ export default new Vuex.Store({
 
     showNotificationDialog: state => state.showNotificationDialog,
     notificationTitle: state => state.notificationTitle,
-    notificationContent: state => state.notificationContent
+    notificationContent: state => state.notificationContent,
+
+    showSnack: state => state.showSnack,
+    snackContent: state => state.snackContent
   }
 })

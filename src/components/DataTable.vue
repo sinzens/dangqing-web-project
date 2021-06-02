@@ -183,7 +183,8 @@ export default Vue.extend({
       searchedHeader: String(),
       searchedValue: String(),
       searchRule: this.$texts.header.searchRule.equal,
-      searchRules: [
+
+      basicSearchRules: [
         this.$texts.header.searchRule.smaller,
         this.$texts.header.searchRule.equal,
         this.$texts.header.searchRule.larger,
@@ -210,6 +211,11 @@ export default Vue.extend({
       field: Record<string, unknown>[]
     }) {
       if (type === 'getTableData') {
+        if (results.length === 0) {
+          this.loading = false
+          return
+        }
+
         this.dataFetched = false
         this.loading = false
         if (this.checkItemModel(
@@ -264,6 +270,16 @@ export default Vue.extend({
           return itemValueText <= search
         case searchRules.largerEqual:
           return itemValueText >= search
+        case searchRules.pathInclude:
+          if (header === 'path') {
+            const paths = itemValueText.toString().split(',')
+            const searchedPaths = search.split(',')
+            const notInclude = searchedPaths.find(path => !paths.includes(path))
+            if (notInclude) {
+              return false
+            }
+          }
+          return true
         default:
           return true
       }
@@ -329,10 +345,12 @@ export default Vue.extend({
       this.confirmingEdit = false
     },
 
-    insertItemToDatabase (item: DataTableItem) {
-      const values = Object.values(item).map(value => `'${value}'`)
-      const valuesStr = values.join(', ')
-      const sql = `insert into ${this.dataTableModel.sourceName} values (${valuesStr})`
+    insertItemToDatabase (item_: DataTableItem) {
+      const item = Object.assign({}, item_) as unknown as Record<string, unknown>
+      const sql = Public.getInsertSql(
+        this.dataTableModel.sourceName,
+        item as unknown as Record<string, unknown>
+      )
       window.ipcRenderer.send('query', { type: 'insertData', sql: sql })
     },
 
@@ -340,28 +358,32 @@ export default Vue.extend({
       newItem_: DataTableItem,
       oldItem_: DataTableItem
     ) {
-      const newItem = newItem_ as unknown as Record<string, unknown>
-      const oldItem = oldItem_ as unknown as Record<string, unknown>
+      const newItem = Object.assign({}, newItem_) as unknown as Record<string, unknown>
+      const oldItem = Object.assign({}, oldItem_) as unknown as Record<string, unknown>
 
-      const values = Object.keys(newItem).map(key => `\`${key}\` = '${newItem[key]}'`)
-      const conditions = this.dataTableModel.keys.map(key => `\`${key}\` = '${oldItem[key]}'`)
-      const valuesStr = values.join(', ')
-      const conditionsStr = conditions.join(' and ')
-      const sql = `update ${this.dataTableModel.sourceName} set ${valuesStr} where ${conditionsStr}`
-
+      const sql = Public.getUpdateSql(
+        this.dataTableModel.sourceName,
+        newItem,
+        oldItem,
+        this.dataTableModel.keys
+      )
       window.ipcRenderer.send('query', { type: 'updateData', sql: sql })
     },
 
     deleteItemToDatabase (item_: DataTableItem) {
-      const item = item_ as unknown as Record<string, unknown>
-      const conditions = this.dataTableModel.keys.map(key => `\`${key}\` = '${item[key]}'`)
-      const conditionsStr = conditions.join(' and ')
-      const sql = `delete from ${this.dataTableModel.sourceName} where ${conditionsStr}`
+      const item = Object.assign({}, item_) as unknown as Record<string, unknown>
+      const sql = Public.getDeleteSql(
+        this.dataTableModel.sourceName,
+        item,
+        this.dataTableModel.keys
+      )
       window.ipcRenderer.send('query', { type: 'deleteData', sql: sql })
     },
 
     checkItemModel (a: DataTableItem, b: DataTableItem) {
-      return Public.isObjectEqualType(
+      return (
+        this.dataTableModel.tableName === this.$store.getters.currentTabPage
+      ) && Public.isObjectEqualType(
         a as unknown as Record<string, unknown>,
         b as unknown as Record<string, unknown>
       )
@@ -377,6 +399,16 @@ export default Vue.extend({
   },
 
   computed: {
+    searchRules (): string[] {
+      if (this.headers.find(header => header.value === 'path')) {
+        return this.basicSearchRules.concat([
+          this.$texts.header.searchRule.pathInclude
+        ])
+      } else {
+        return this.basicSearchRules
+      }
+    },
+
     headerMap (): Record<string, string> {
       const tableName = this.dataTableModel.tableName as string
       const recordGroup = this.$texts.header as Record<string, unknown>
