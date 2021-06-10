@@ -131,5 +131,19 @@ export default {
     const conditionsStr = conditions.join(' and ')
     const sql = `delete from ${table} where ${conditionsStr}`
     return sql
+  },
+
+  timeAfterMinutes (time: number[], minutes: number) {
+    const hour = time[0]
+    const minute = time[1]
+
+    const howManyhours = Math.floor(minutes / 60)
+    const howManyMinutes = minutes % 60
+
+    let newHour = hour + howManyhours
+    if (newHour > 23) newHour -= 24
+    const newMinutes = howManyMinutes
+
+    return [newHour, newMinutes]
   }
 }

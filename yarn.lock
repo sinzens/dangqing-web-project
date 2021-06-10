@@ -1088,6 +1088,13 @@
   resolved "https://registry.nlark.com/@types/debug/download/@types/debug-4.1.5.tgz#b14efa8852b7768d898906613c23f688713e02cd"
   integrity sha1-sU76iFK3do2JiQZhPCP2iHE+As0=
 
+"@types/echarts@^4.9.7":
+  version "4.9.7"
+  resolved "https://registry.npmjs.org/@types/echarts/-/echarts-4.9.7.tgz#4437fb503111f5b1ed7961e7b95c7ed09a4844a3"
+  integrity sha512-+klqEur0+bh1UjR6EpGE023vxpqzPSk58X5JwVEIBu0NOYMaMPKeM/TMnbL43BlDUZv4xttZFdeDdOtFk/YwzQ==
+  dependencies:
+    "@types/zrender" "*"
+
 "@types/electron-devtools-installer@^2.2.0":
   version "2.2.0"
   resolved "https://registry.nlark.com/@types/electron-devtools-installer/download/@types/electron-devtools-installer-2.2.0.tgz#32ee4ebbe99b3daf9847a6d2097dc00b5de94f10"
@@ -1294,6 +1301,11 @@
   integrity sha1-NPf+yLOJ1/PB/QgCaldj4HLTxtw=
   dependencies:
     "@types/yargs-parser" "*"
+
+"@types/zrender@*":
+  version "4.0.0"
+  resolved "https://registry.npmjs.org/@types/zrender/-/zrender-4.0.0.tgz#a6806f12ec4eccaaebd9b0d816f049aca6188fbd"
+  integrity sha512-s89GOIeKFiod2KSqHkfd2rzx+T2DVu7ihZCBEBnhFrzvQPUmzvDSBot9Fi1DfMQm9Odg+rTqoMGC38RvrwJK2w==
 
 "@typescript-eslint/eslint-plugin@^4.18.0":
   version "4.24.0"
@@ -4053,6 +4065,14 @@ ecc-jsbn@~0.1.1:
   dependencies:
     jsbn "~0.1.0"
     safer-buffer "^2.1.0"
+
+echarts@^5.1.1:
+  version "5.1.1"
+  resolved "https://registry.npmjs.org/echarts/-/echarts-5.1.1.tgz#b186f162f017c555cfd67b12ede6762bdc3ddfda"
+  integrity sha512-b3nP8M9XwZM2jISuA+fP0EuJv8lcfgWrinel185Npy8bE/UhXTDIPJcqgQOCWdvk0c5CeT6Dsm1xBjmJXAGlxQ==
+  dependencies:
+    tslib "2.0.3"
+    zrender "5.1.0"
 
 editions@^6.1.0:
   version "6.1.0"
@@ -9981,6 +10001,11 @@ tsconfig-paths@^3.9.0:
     minimist "^1.2.0"
     strip-bom "^3.0.0"
 
+tslib@2.0.3:
+  version "2.0.3"
+  resolved "https://registry.npmjs.org/tslib/-/tslib-2.0.3.tgz#8e0741ac45fc0c226e58a17bfc3e64b9bc6ca61c"
+  integrity sha512-uZtkfKblCEQtZKBF6EBXVZeQNl82yqtDQdv+eck8u7tdPxjLu2/lp5/uPW+um2tpuxINHWy3GhiccY7QgEaVHQ==
+
 tslib@^1.8.0, tslib@^1.8.1, tslib@^1.9.0:
   version "1.14.1"
   resolved "https://registry.npm.taobao.org/tslib/download/tslib-1.14.1.tgz?cache=0&sync_timestamp=1617647331485&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Ftslib%2Fdownload%2Ftslib-1.14.1.tgz#cf2d38bdc34a134bcaf1091c41f6619e2f672d00"
@@ -11145,3 +11170,10 @@ yorkie@^2.0.0:
     is-ci "^1.0.10"
     normalize-path "^1.0.0"
     strip-indent "^2.0.0"
+
+zrender@5.1.0:
+  version "5.1.0"
+  resolved "https://registry.npmjs.org/zrender/-/zrender-5.1.0.tgz#b6a84c3aa7ccc6642ee0519901ca4c0835c4d85e"
+  integrity sha512-c+8VRx52ycbmqwHeHLlo/BAfIHBl/JZNLM6cfDQFgzIH05yb+f5J9F/fbRsP+zGc8dW9XHuhdt8/iqukgMZSeg==
+  dependencies:
+    tslib "2.0.3"

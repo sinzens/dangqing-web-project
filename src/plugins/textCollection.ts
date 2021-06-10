@@ -4,6 +4,9 @@ export default {
     navigator: '导航栏',
     notification: '提示',
     exportData: '导出数据',
+    dataTable: '数据表',
+    visualization: '可视化',
+    statistics: '统计图表',
     newDataItem: '新建数据',
     editDataItem: '修改数据',
     deleteDataItem: '删除数据',
@@ -82,6 +85,17 @@ export default {
     backupTable: {
       identifier: '记录日期'
     },
+    batchTableChart: {
+      totalStandNumber: '看台人数总和',
+      totalDropOffNumber: '落客点人数总和',
+      totalSecurityNumber: '安检点人数总和',
+      arrivalTimeline: '波次到达时间轴',
+      pathMap: '路径地图',
+      standNumber: '看台编号',
+      dropOffNumber: '落客点',
+      securityNumber: '安检点',
+      numberOfPeople: '人数总和'
+    },
     actions: '操作',
     settings: '设置',
     about: '关于'
@@ -91,10 +105,7 @@ export default {
     confirm: '确定',
     cancel: '取消',
     save: '保存',
-    statusBar: {
-      databaseHost: '数据库地址',
-      databaseVersion: '数据库版本'
-    },
+    zoomOutView: '放大展示',
     exportData: '导出数据',
     updateDatabase: '写入数据库',
     fileName: '文件名',
@@ -102,6 +113,7 @@ export default {
     noData: '没有数据',
     noResult: '没有符合条件的结果',
     loading: '正在读取',
+    showStatistics: '查看统计图表',
     newDataItem: '新建数据',
     deleteDataItem: '删除数据',
     deleteDataItemConfirm: '确定要删除此数据吗 (可以从备份中恢复)',
@@ -134,6 +146,10 @@ export default {
       user: '用户名',
       password: '密码',
       connectTimeout: '超时时限 (ms)'
+    },
+    statusBar: {
+      databaseHost: '数据库地址',
+      databaseVersion: '数据库版本'
     }
   }
 }

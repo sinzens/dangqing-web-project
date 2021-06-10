@@ -12,6 +12,9 @@
   >
     <template v-slot:top>
       <v-toolbar flat>
+        <v-toolbar-title v-text="$texts.title.dataTable" />
+      </v-toolbar>
+      <v-toolbar flat>
         <v-select
           class="mr-5"
           v-model="searchedHeader"

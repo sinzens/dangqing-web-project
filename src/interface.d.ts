@@ -1,4 +1,5 @@
 import TextCollection from './plugins/textCollection'
+import { EChartsOption } from 'echarts'
 
 export type Page
   = 'basicModel'
@@ -58,6 +59,13 @@ export interface FormItem {
   rules?: ((value: FormItemValue) => boolean | string)[]
 }
 
+export interface StatisticsModel {
+  notMerge: boolean
+  option: EChartsOption
+  renderMode: 'canvas' | 'svg'
+  backgroundImage?: boolean
+}
+
 export interface DataTableHeader {
   text?: string
   value: string
@@ -85,6 +93,7 @@ export interface DataTableModel {
   tableName: Table,
   sourceName: TableSource,
   invalidInfo?: string
+  statistics?: StatisticsModel[]
   converter?: (item: DataTableItem) => DataTableItem
   invertConverter?: (item: DataTableItem) => DataTableItem
   validate?: (item: DataTableItem) => boolean
@@ -104,6 +113,15 @@ export interface BasicModel {
   number_of_people: number
 }
 
+export type BatchItemKey
+ = 'batchno'
+ | 'arrivaltime'
+ | 'arrivalnum'
+ | 'dropoff_no'
+ | 'stand_no'
+ | 'security_no'
+ | 'sc_capacity'
+
 export interface BatchItem {
   batchno: number
   arrivaltime: number
@@ -112,7 +130,14 @@ export interface BatchItem {
   stand_no: string
   security_no: string
   sc_capacity: number
+  [index: BatchItemKey]: string | number
 }
+
+export type AtdPathKey
+ = 'dropoff_no'
+ | 'name'
+ | 'security_no'
+ | 'path'
 
 export interface AtdPathItem {
   dropoff_no: string
@@ -120,6 +145,13 @@ export interface AtdPathItem {
   security_no: string
   path: string
 }
+
+export type DtaPathKey
+ = 'name'
+ | 'content'
+ | 'security_no'
+ | 'stand_no'
+ | 'path'
 
 export interface DtaPathItem {
   name: string
@@ -129,6 +161,14 @@ export interface DtaPathItem {
   path: string
 }
 
+export type StopPointKey
+ = 'area'
+ | 'name'
+ | 'p_minvalue'
+ | 'p_maxvalue'
+ | 'dropoff_way'
+ | 'delta'
+
 export interface StopPointItem {
   area: string
   name: string
@@ -137,6 +177,12 @@ export interface StopPointItem {
   dropoff_way: number
   delta: number
 }
+
+export type SecurityPointKey
+ = 'area'
+ | 'name'
+ | 'p_minvalue'
+ | 'p_maxvalue'
 
 export interface SecurityPointItem {
   area: string
